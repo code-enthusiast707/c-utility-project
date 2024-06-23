@@ -1,1 +1,4 @@
-24aBCd
+Hello World, this is a novice C programmer.
+I am working on a C program for file read and write.
+What do you think about it?
+Please let me know.

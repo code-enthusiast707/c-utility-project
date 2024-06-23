@@ -24,16 +24,18 @@ void fileWrite(FILE *fp)
 
         while(choice != 'n')
         {
-                printf("1. Insert a character to be written to the file\n2. Do you want to insert another character? y or n\n");
-                char buff[100];
+                printf("1. Enter a sentence to be written to the file\n");
+                char buff[100], buff1[10];
 
                 fgets(buff, sizeof(buff), stdin);
 
-                char c_in;
+		printf("2. Do you want to continue? y or n\n");
 
-                sscanf(buff, "%c %c", &c_in, &choice);
+                fputs(buff, fp);
 
-                fputc(c_in, fp);
+		fgets(buff1, sizeof(buff1), stdin);
+
+		sscanf(buff1, "%c", &choice);
         }
 }
 
@@ -42,13 +44,11 @@ void fileRead(FILE *fp)
 {
 	printf("\nFile read operation\n\n");
 
-        char c_out;
-        while((c_out = fgetc(fp)) != EOF)
+        char buff[100];
+        while(fgets(buff, sizeof(buff), fp) != NULL)
         {
-                printf("%c", c_out);
+                printf("%s", buff);
         }
-
-        printf("\n\n");
 }
 
 void main()
