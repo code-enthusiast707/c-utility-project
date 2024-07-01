@@ -1,10 +1,18 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
+
+struct employee
+{
+	int id;
+	int age;
+	char name[100];
+};
 
 // file open
-FILE* fileOpen(char *file_mode)
+FILE* fileOpen(char* filename, char *file_mode)
 {
-	FILE *fp = fopen("file1.txt", file_mode);
+	FILE *fp = fopen(filename, file_mode);
 
         if(fp == NULL)
         {
@@ -15,8 +23,8 @@ FILE* fileOpen(char *file_mode)
 	return fp;
 }
 
-// write to file
-void fileWrite(FILE *fp)
+// write to text file
+void textFileWrite(FILE *fp)
 {
 	printf("File write operation\n\n");
 
@@ -39,8 +47,37 @@ void fileWrite(FILE *fp)
         }
 }
 
-// read from file
-void fileRead(FILE *fp)
+// write to binary file
+void binaryFileWrite(FILE *fp)
+{
+	struct employee e;
+
+	char buff[100];
+
+	printf("Enter employee id, age and name:\n");
+
+	fgets(buff, sizeof(buff), stdin);
+
+	sscanf(buff, "%d", &e.id);
+
+	fgets(buff, sizeof(buff), stdin);
+
+        sscanf(buff, "%d", &e.age);
+
+	fgets(e.name, sizeof(buff), stdin);
+
+	/*
+	 * The following block of code doesn't work, why?
+	 * fgets(buff, sizeof(buff), stdin);
+	 * sscanf(buff, "%s", e.name);
+	 * In name only first word is getting stored and not the full name
+	 */
+
+	fwrite(&e, sizeof(e), 1, fp);
+}
+
+// read from text file
+void textFileRead(FILE *fp)
 {
 	printf("\nFile read operation\n\n");
 
@@ -51,25 +88,82 @@ void fileRead(FILE *fp)
         }
 }
 
+// read from binary file
+void binaryFileRead(FILE *fp)
+{
+	struct employee e;
+
+	while(fread(&e, sizeof(e), 1, fp) == 1)
+	{
+		printf("id = %d, age = %d, name = %s\n", e.id, e.age, e.name);
+	}
+}
+
+/// TODO: Create a menu and provide 2 menu items, one for editing text file and other for editing binary file
 void main()
 {
 	FILE *fp;
 
+	char buff[100];
+
+	int ch;
+
+	char filename[50], readFilemode[10], writeFilemode[10];
+
+	// Take input for text or binary file
+	printf("1. Text file operation\n2. Binary file operation\nChoose 1 or 2:\n");
+
+	fgets(buff, sizeof(buff), stdin);
+
+	sscanf(buff, "%d", &ch);
+
+	if(ch == 1)
+	{
+		strcpy(writeFilemode,"w");
+		strcpy(readFilemode,"r");
+	}
+	else
+	{
+		strcpy(writeFilemode,"wb");
+		strcpy(readFilemode,"rb");
+	}
+
+	// Take input for filename
+	printf("Enter filename:\n");
+
+	fgets(buff, sizeof(buff), stdin);
+
+	sscanf(buff, "%s", filename);
+
 	// open file for write operation
-	fp = fileOpen("w");
+	fp = fileOpen(filename, writeFilemode);
 
 	// perform file write
-	fileWrite(fp);
+	if(ch == 1)
+	{	
+		textFileWrite(fp);
+	}
+	else
+	{
+		binaryFileWrite(fp);
+	}
 	
 	// close file after write operation
 	fclose(fp);
 
 	// open file for read operation
-	fp = fileOpen("r");
+	fp = fileOpen(filename, readFilemode);
 
 	// perform file read
-	fileRead(fp);
-
+	if(ch == 1)
+	{
+		textFileRead(fp);
+	}
+	else
+	{
+		binaryFileRead(fp);
+	}
+	
 	// close file after read operation
 	fclose(fp);
 }
