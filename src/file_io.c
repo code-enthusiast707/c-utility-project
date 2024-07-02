@@ -54,17 +54,30 @@ void binaryFileWrite(FILE *fp)
 
 	char buff[100];
 
-	printf("Enter employee id, age and name:\n");
+	char ch = 'y';
 
-	fgets(buff, sizeof(buff), stdin);
+	while(ch != 'n')
+	{
+		printf("Enter employee id, age and name:\n");
 
-	sscanf(buff, "%d", &e.id);
+		fgets(buff, sizeof(buff), stdin);
 
-	fgets(buff, sizeof(buff), stdin);
+		sscanf(buff, "%d", &e.id);
 
-        sscanf(buff, "%d", &e.age);
+		fgets(buff, sizeof(buff), stdin);
 
-	fgets(e.name, sizeof(buff), stdin);
+        	sscanf(buff, "%d", &e.age);
+
+		fgets(e.name, sizeof(e.name), stdin);
+
+		fwrite(&e, sizeof(e), 1, fp);
+
+		printf("Do you want to continue? y or n\n");
+
+		fgets(buff, sizeof(buff), stdin);
+
+		sscanf(buff, "%c", &ch);
+	}
 
 	/*
 	 * The following block of code doesn't work, why?
@@ -72,8 +85,6 @@ void binaryFileWrite(FILE *fp)
 	 * sscanf(buff, "%s", e.name);
 	 * In name only first word is getting stored and not the full name
 	 */
-
-	fwrite(&e, sizeof(e), 1, fp);
 }
 
 // read from text file
@@ -95,11 +106,10 @@ void binaryFileRead(FILE *fp)
 
 	while(fread(&e, sizeof(e), 1, fp) == 1)
 	{
-		printf("id = %d, age = %d, name = %s\n", e.id, e.age, e.name);
+		printf("id = %d, age = %d, name = %s", e.id, e.age, e.name);
 	}
 }
 
-/// TODO: Create a menu and provide 2 menu items, one for editing text file and other for editing binary file
 void main()
 {
 	FILE *fp;
