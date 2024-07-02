@@ -2,6 +2,13 @@
 #include<stdlib.h>
 #include<string.h>
 
+struct userInput
+{
+	char filename[50];
+	char writeFilemode[10];
+	char readFilemode[10];
+};
+
 struct employee
 {
 	int id;
@@ -37,7 +44,7 @@ void textFileWrite(FILE *fp)
 
                 fgets(buff, sizeof(buff), stdin);
 
-		printf("2. Do you want to continue? y or n\n");
+		printf("2. Do you want to continue? y or n\n"); 
 
                 fputs(buff, fp);
 
@@ -62,13 +69,7 @@ void binaryFileWrite(FILE *fp)
 
 		fgets(buff, sizeof(buff), stdin);
 
-		sscanf(buff, "%d", &e.id);
-
-		fgets(buff, sizeof(buff), stdin);
-
-        	sscanf(buff, "%d", &e.age);
-
-		fgets(e.name, sizeof(e.name), stdin);
+		sscanf(buff, "%d %d %[^\n]", &e.id, &e.age, e.name);
 
 		fwrite(&e, sizeof(e), 1, fp);
 
@@ -78,13 +79,6 @@ void binaryFileWrite(FILE *fp)
 
 		sscanf(buff, "%c", &ch);
 	}
-
-	/*
-	 * The following block of code doesn't work, why?
-	 * fgets(buff, sizeof(buff), stdin);
-	 * sscanf(buff, "%s", e.name);
-	 * In name only first word is getting stored and not the full name
-	 */
 }
 
 // read from text file
@@ -106,74 +100,97 @@ void binaryFileRead(FILE *fp)
 
 	while(fread(&e, sizeof(e), 1, fp) == 1)
 	{
-		printf("id = %d, age = %d, name = %s", e.id, e.age, e.name);
+		printf("id = %d, age = %d, name = %s\n", e.id, e.age, e.name);
 	}
+}
+
+void init(struct userInput *ui)
+{
+	char buff[100];
+
+        int ch;
+
+        char filename[50], readFilemode[10], writeFilemode[10];
+
+        // Take input for text or binary file
+        printf("1. Text file operation\n2. Binary file operation\nChoose 1 or 2:\n");
+
+        fgets(buff, sizeof(buff), stdin);
+
+        sscanf(buff, "%d", &ch);
+
+        if(ch == 1)
+        {
+                strcpy(ui->writeFilemode,"w");
+                strcpy(ui->readFilemode,"r");
+        }
+        else
+        {
+                strcpy(ui->writeFilemode,"wb");
+                strcpy(ui->readFilemode,"rb");
+        }
+
+        // Take input for filename
+        printf("Enter filename:\n");
+
+        fgets(buff, sizeof(buff), stdin);
+
+        sscanf(buff, "%s", ui->filename);
+}
+
+void fileWrite(struct userInput ui)
+{
+	FILE *fp;
+
+	// open file for write operation
+        fp = fileOpen(ui.filename, ui.writeFilemode);
+
+        // perform file write
+        if(strcmp(ui.writeFilemode, "w") == 0)
+        {       
+                textFileWrite(fp);
+        }
+        else
+        {
+                binaryFileWrite(fp);
+        }
+        
+        // close file after write operation
+        fclose(fp);
+}
+
+void fileRead(struct userInput ui)
+{
+	FILE *fp;
+
+	// open file for read operation
+        fp = fileOpen(ui.filename, ui.readFilemode);
+
+        // perform file read
+        if(strcmp(ui.readFilemode,"r") == 0)
+        {
+                textFileRead(fp);
+        }
+        else
+        {
+                binaryFileRead(fp);
+        }
+
+        // close file after read operation
+        fclose(fp);
 }
 
 void main()
 {
-	FILE *fp;
+	struct userInput ui;
 
-	char buff[100];
+	// take user input and initialise the data
+	init(&ui);
 
-	int ch;
+	// perform file write operation
+	fileWrite(ui);
 
-	char filename[50], readFilemode[10], writeFilemode[10];
+	// perform file read operation
+	fileRead(ui);
 
-	// Take input for text or binary file
-	printf("1. Text file operation\n2. Binary file operation\nChoose 1 or 2:\n");
-
-	fgets(buff, sizeof(buff), stdin);
-
-	sscanf(buff, "%d", &ch);
-
-	if(ch == 1)
-	{
-		strcpy(writeFilemode,"w");
-		strcpy(readFilemode,"r");
-	}
-	else
-	{
-		strcpy(writeFilemode,"wb");
-		strcpy(readFilemode,"rb");
-	}
-
-	// Take input for filename
-	printf("Enter filename:\n");
-
-	fgets(buff, sizeof(buff), stdin);
-
-	sscanf(buff, "%s", filename);
-
-	// open file for write operation
-	fp = fileOpen(filename, writeFilemode);
-
-	// perform file write
-	if(ch == 1)
-	{	
-		textFileWrite(fp);
-	}
-	else
-	{
-		binaryFileWrite(fp);
-	}
-	
-	// close file after write operation
-	fclose(fp);
-
-	// open file for read operation
-	fp = fileOpen(filename, readFilemode);
-
-	// perform file read
-	if(ch == 1)
-	{
-		textFileRead(fp);
-	}
-	else
-	{
-		binaryFileRead(fp);
-	}
-	
-	// close file after read operation
-	fclose(fp);
 }
